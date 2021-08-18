@@ -5,3 +5,6 @@ mock
 nose
 pycodestyle
 pylint
+docutils
+gitpython
+six

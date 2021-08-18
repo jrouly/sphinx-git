@@ -119,6 +119,8 @@ class GitChangelog(GitDirectiveBase):
         'hide_date': bool,
         'hide_details': bool,
         'repo-dir': six.text_type,
+
+        'gitlab_author_url': str,
     }
 
     def run(self):
@@ -185,7 +187,7 @@ class GitChangelog(GitDirectiveBase):
 
             if not self.options.get('hide_author'):
                 par += [nodes.inline(text=" by "),
-                        nodes.emphasis(text=six.text_type(commit.author))]
+                        nodes.emphasis(text=six.text_type(self._link_author(commit.author)))]
             if not self.options.get('hide_date'):
                 par += [nodes.inline(text=" at "),
                         nodes.emphasis(text=str(date_str))]
@@ -199,6 +201,17 @@ class GitChangelog(GitDirectiveBase):
                     item.append(nodes.paragraph(text=detailed_message))
             list_node.append(item)
         return [list_node]
+
+    def _link_author(self, author):
+        gitlab_author_url = self.options.get('gitlab_author_url')
+        if gitlab_author_url:
+            url = gitlab_author_url.format(author.user)
+            return self._hyperlink(author.name, url)
+        return author
+
+    @staticmethod
+    def _hyperlink(text, link):
+        return ":ref:`{} <{}>`_".format(text, link)
 
 
 def setup(app):
